@@ -6,16 +6,12 @@
     users:
       - name: evaro
         github_username: devarops
-      - name: nepo
-        github_username: nepito
       - name: mvb
         github_username: mvillasante
       - name: memo
         github_username: MemoOlv
       - name: ybedolla
         github_username: ybedolla
-      - name: chio
-        github_username: Chio360
       - name: max
         github_username: MaximilianoVM
   tasks:
