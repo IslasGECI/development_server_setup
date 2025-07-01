@@ -11,11 +11,10 @@
         name: "curl"
         state: present
       become: true
-    - name: Install Docker via snap
-      community.general.snap:
-        name: docker
-        classic: yes
-        state: present
+    - name: Install Docker using official get.docker.com script
+      ansible.builtin.shell: curl -fsSL https://get.docker.com | sh
+      args:
+        executable: /bin/bash
       become: true
     - name: Install Git
       ansible.builtin.apt:
@@ -47,6 +46,13 @@
         name: "{{ ansible_user_id }}"
         groups: docker
         append: true
+      become: true
+      notify: Restart server
+    - name: Enable and start Docker service
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
       become: true
       notify: Restart server
   handlers:
