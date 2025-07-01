@@ -11,14 +11,10 @@
         name: "curl"
         state: present
       become: true
-    - name: Install Docker
-      ansible.builtin.apt:
-        name: "docker.io"
-        state: present
-      become: true
-    - name: Install Docker-compose
-      ansible.builtin.apt:
-        name: "docker-compose"
+    - name: Install Docker via snap
+      community.general.snap:
+        name: docker
+        classic: yes
         state: present
       become: true
     - name: Install Git
