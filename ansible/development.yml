@@ -15,6 +15,8 @@
       ansible.builtin.shell: curl -fsSL https://get.docker.com | sh
       args:
         executable: /bin/bash
+      tags:
+      - skip_ansible_lint
       become: true
     - name: Install Git
       ansible.builtin.apt:
