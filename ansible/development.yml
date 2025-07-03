@@ -122,6 +122,7 @@
         mode: +x
       notify: Crontab
       become: true
+      when: ansible_connection != 'local'
   handlers:
     - name: Crontab
       ansible.builtin.command: "crontab {{ ansible_facts.user_dir }}/src/Cronfile"
