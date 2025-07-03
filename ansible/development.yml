@@ -98,8 +98,12 @@
         group: root
       become: true
     - name: Install container-runner using pipx with shared location
-      ansible.builtin.command: >
-        pipx install container-runner==0.1.0
+      community.general.pipx:
+        name: container-runner
+        version: 0.1.0
+        state: present
+        executable: pipx
+        install_deps: true
       become: true
       environment:
         PIPX_HOME: /opt/pipx
