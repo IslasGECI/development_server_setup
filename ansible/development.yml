@@ -61,6 +61,7 @@
     - name: Restart server
       ansible.builtin.reboot:
       become: true
+      when: ansible_connection != 'local'
 
 - name: Install IslasGECI dotfiles
   hosts: devserver
