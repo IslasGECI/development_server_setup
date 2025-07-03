@@ -99,10 +99,8 @@
       become: true
     - name: Install container-runner using pipx with shared location
       community.general.pipx:
-        name: container-runner
-        version: 0.1.0
+        name: container-runner==0.1.0
         state: present
-        executable: pipx
         install_deps: true
       become: true
       environment:
