@@ -89,6 +89,21 @@
         clone: true
         update: true
         version: develop
+    - name: Ensure /opt/pipx exists
+      ansible.builtin.file:
+        path: /opt/pipx
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+      become: true
+    - name: Install container-runner using pipx with shared location
+      ansible.builtin.command: >
+        pipx install container-runner==0.1.0
+      become: true
+      environment:
+        PIPX_HOME: /opt/pipx
+        PIPX_BIN_DIR: /usr/local/bin
     - name: Run 'install' testmake
       community.general.make:
         chdir: "{{ ansible_facts.user_dir }}/testmake"
