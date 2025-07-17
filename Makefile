@@ -40,6 +40,7 @@ host_known:
 init:
 	cd src && \
 	az login --username $${AZURE_USERNAME} --password $${AZURE_PASSWORD} && \
+	az account set --subscription "Old subscription" && \
 	terraform init
 
 setup_server:
