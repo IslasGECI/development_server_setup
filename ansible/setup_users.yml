@@ -12,6 +12,8 @@
         github_username: MemoOlv
       - name: ybedolla
         github_username: ybedolla
+      - name: davidfr
+        github_username: Davidfr04
 
   tasks:
     - name: Create users
