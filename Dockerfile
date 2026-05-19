@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 WORKDIR /workdir
 COPY . /workdir
 COPY .config/hosts /etc/ansible/hosts
