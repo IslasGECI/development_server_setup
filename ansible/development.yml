@@ -36,7 +36,8 @@
     - name: Install pipx
       ansible.builtin.apt:
         name: "pipx"
-        state: present
+        update_cache: true
+        state: latest
       become: true
     - name: Install Docker SDK for Python
       community.general.pipx:
