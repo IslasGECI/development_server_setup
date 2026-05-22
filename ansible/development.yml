@@ -120,6 +120,13 @@
       community.general.timezone:
         name: America/Los_Angeles
       become: true
+    - name: Ensure passwordless sudo for sudo group members
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/sudo-group-nopasswd
+        content: '%sudo ALL=(ALL:ALL) NOPASSWD:ALL'
+        mode: '0440'
+        validate: 'visudo -c -f %s'
+      become: true
     - name: Ensure group "share" exists
       ansible.builtin.group:
         name: share
