@@ -1,77 +1,108 @@
-resource "azurerm_resource_group" "devserver" {
-  name     = "devserver-resources"
-  location = "West US 2"
-}
-
-resource "azurerm_virtual_network" "devserver" {
-  name                = "devserver-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.devserver.location
-  resource_group_name = azurerm_resource_group.devserver.name
-}
-
-resource "azurerm_subnet" "devserver" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.devserver.name
-  virtual_network_name = azurerm_virtual_network.devserver.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
-resource "azurerm_public_ip" "devserver" {
-  name                = "devserver-public-ip"
-  domain_name_label   = "devserver"
-  location            = azurerm_resource_group.devserver.location
-  resource_group_name = azurerm_resource_group.devserver.name
-  allocation_method   = "Static"
-}
-
-resource "azurerm_network_interface" "devserver" {
-  name                = "devserver-nic"
-  location            = azurerm_resource_group.devserver.location
-  resource_group_name = azurerm_resource_group.devserver.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.devserver.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.devserver.id
+resource "aws_vpc" "devserver" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "devserver-vpc"
   }
 }
 
-resource "azurerm_linux_virtual_machine" "devserver" {
-  name                = "devserver"
-  resource_group_name = azurerm_resource_group.devserver.name
-  location            = azurerm_resource_group.devserver.location
-  size                = "Standard_B4ms"
-  admin_username      = "ciencia_datos"
-  network_interface_ids = [
-    azurerm_network_interface.devserver.id,
-  ]
-
-  admin_ssh_key {
-    username   = "ciencia_datos"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-    disk_size_gb         = 128
-  }
-
-  source_image_reference {
-    publisher = "canonical"
-    offer     = "ubuntu-26_04-lts"
-    sku       = "server"
-    version   = "latest"
+resource "aws_internet_gateway" "devserver" {
+  vpc_id = aws_vpc.devserver.id
+  tags = {
+    Name = "devserver-igw"
   }
 }
 
-data "azurerm_public_ip" "devserver" {
-  name                = azurerm_public_ip.devserver.name
-  resource_group_name = azurerm_linux_virtual_machine.devserver.resource_group_name
+resource "aws_subnet" "devserver" {
+  vpc_id     = aws_vpc.devserver.id
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "us-east-1a"
+  tags = {
+    Name = "devserver-subnet"
+  }
 }
 
-output "devserver_ip" {
-  value = data.azurerm_public_ip.devserver.ip_address
+resource "aws_security_group" "devserver" {
+  name        = "devserver-sg"
+  description = "Security group for devserver"
+  vpc_id      = aws_vpc.devserver.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_network_interface" "devserver" {
+  subnet_id       = aws_subnet.devserver.id
+  security_groups = [aws_security_group.devserver.id]
+
+  tags = {
+    Name = "devserver-nic"
+  }
+}
+
+resource "aws_eip" "devserver" {
+  domain            = "vpc"
+  network_interface = aws_network_interface.devserver.id
+  depends_on        = [aws_vpc.devserver]
+
+  tags = {
+    Name = "devserver-public-ip"
+  }
+}
+
+resource "aws_route_table" "devserver" {
+  vpc_id = aws_vpc.devserver.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.devserver.id
+  }
+  tags = {
+    Name = "devserver-rt"
+  }
+}
+
+resource "aws_route_table_association" "devserver" {
+  subnet_id      = aws_subnet.devserver.id
+  route_table_id = aws_route_table.devserver.id
+}
+
+resource "aws_key_pair" "devserver" {
+  public_key = file("~/.ssh/id_rsa.pub")
+  tags = {
+    Name = "devserver-key"
+  }
+}
+
+resource "aws_instance" "devserver" {
+  ami                         = "ami-02ebdb11bae1b2486"
+  instance_type               = "t3.large"
+  key_name                    = "devserver-key"
+  
+  network_interface {
+    network_interface_id = aws_network_interface.devserver.id
+    device_index         = 0
+  }
+
+  tags = {
+    Name = "devserver"
+  }
+
+  root_block_device {
+    volume_size = 128
+    volume_type = "gp3"
+  }
+}
+
+output "devserver_ip_aws" {
+  value = aws_eip.devserver.public_ip
 }
