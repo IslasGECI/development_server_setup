@@ -85,7 +85,7 @@ resource "aws_key_pair" "devserver" {
 
 resource "aws_instance" "devserver" {
   ami                         = "ami-02ebdb11bae1b2486"
-  instance_type               = "t3.large"
+  instance_type               = "t3.xlarge"
   key_name                    = aws_key_pair.devserver.id
   
   network_interface {
