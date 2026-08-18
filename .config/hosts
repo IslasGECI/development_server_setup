@@ -1,2 +1,2 @@
 [servers]
-devserver ansible_host="{{ lookup('env', 'DEVSERVER_IP') }}" ansible_user=ciencia_datos
+devserver ansible_host="{{ lookup('env', 'DEVSERVER_IP') }}" ansible_user=ubuntu
