@@ -13,8 +13,8 @@ resource "aws_internet_gateway" "devserver" {
 }
 
 resource "aws_subnet" "devserver" {
-  vpc_id     = aws_vpc.devserver.id
-  cidr_block = "10.0.2.0/24"
+  vpc_id            = aws_vpc.devserver.id
+  cidr_block        = "10.0.2.0/24"
   availability_zone = "us-east-1a"
   tags = {
     Name = "devserver-subnet"
@@ -84,10 +84,10 @@ resource "aws_key_pair" "devserver" {
 }
 
 resource "aws_instance" "devserver" {
-  ami                         = "ami-02ebdb11bae1b2486"
-  instance_type               = "t3.xlarge"
-  key_name                    = aws_key_pair.devserver.id
-  
+  ami           = "ami-02ebdb11bae1b2486"
+  instance_type = "t3.xlarge"
+  key_name      = aws_key_pair.devserver.id
+
   network_interface {
     network_interface_id = aws_network_interface.devserver.id
     device_index         = 0
