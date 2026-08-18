@@ -26,16 +26,14 @@ create_server: init
 	cd src && terraform apply -auto-approve
 
 destroy_server: init
-	cd src && terraform destroy -auto-approve -target="azurerm_linux_virtual_machine.devserver" && \
-	terraform destroy -auto-approve -target="azurerm_network_interface.devserver" && \
-	terraform destroy -auto-approve -target="azurerm_virtual_network.devserver"
+	cd src && terraform destroy -auto-approve -target=aws_instance.devserver
 
 format:
 	cd src && terraform fmt
 
 host_known:
 	cd src && \
-	ssh-keyscan "$$(terraform output -raw devserver_ip)" > "$${HOME}/.ssh/known_hosts"
+	ssh-keyscan "$$(terraform output -raw devserver_ip_aws)" > "$${HOME}/.ssh/known_hosts"
 
 init:
 	cd src && \
@@ -51,7 +49,7 @@ setup_server:
 
 setup_users:
 	cd src && \
-	export DEVSERVER_IP=$$(terraform output -raw devserver_ip) && \
+	export DEVSERVER_IP=$$(terraform output -raw devserver_ip_aws) && \
 	ansible-playbook /workdir/ansible/setup_users.yml
 
 sleep:
