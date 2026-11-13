@@ -59,11 +59,8 @@
       become: true
       notify: Restart server
     - name: Install pi-coding-agent
-      community.general.npm:
-        name: "@earendil-works/pi-coding-agent"
-        global: true
-        ignore_scripts: true
-      become: true
+      ansible.builtin.shell: |
+        npm install -g --ignore-scripts --prefix ~/.local @earendil-works/pi-coding-agent
   handlers:
     - name: Restart server
       ansible.builtin.reboot:
