@@ -60,7 +60,7 @@
       notify: Restart server
     - name: Install pi-coding-agent
       community.general.npm:
-        name: @earendil-works/pi-coding-agent
+        name: "@earendil-works/pi-coding-agent"
         global: true
         ignore_scripts: true
       become: true
